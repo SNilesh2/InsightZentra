@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="shortcut icon" type="png" href="images/icon/favicon.png">
+	<title>Login / Signup</title>
+	<link rel="stylesheet" type="text/css" href="loginStyle.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<body>
+	<div class="form-box">
+		<div class="button-box">
+			<div id="btn"></div>
+			<button type="button" class="toggle-btn" id="log" onclick="login()" style="color: #fff;">Log In</button>
+			<button type="button" class="toggle-btn" id="reg" onclick="register()">Signup</button>
+		</div>
+		<div class="social-icons">
+			<img src="images/icon/fb2.png">
+			<img src="images/icon/insta2.png">
+			<img src="images/icon/tt2.png">
+		</div>
+
+		<!-- Login Form -->
+		<form id="login" class="input-group" action="login.php" method="POST">
+			<div class="inp">
+				<img src="images/icon/user.png">
+				<input type="text" name="email" class="input-field" placeholder="Email or Username" style="width: 88%; border:none;" required>
+			</div>
+			<div class="inp">
+				<img src="images/icon/password.png">
+				<input type="password" name="password" class="input-field" placeholder="Password" style="width: 88%; border: none;" required>
+			</div>
+			<input type="checkbox" class="check-box">Remember Password
+			<button type="submit" class="submit-btn">Log In</button>
+		</form>
+
+		<div class="other" id="other">
+			<div class="instead">
+				<h3>or</h3>
+			</div>
+			<button class="connect" onclick="google()">
+				<img src="images/icon/google.png"><span>Sign in with Google</span>
+			</button>
+		</div>
+
+		<!-- Signup Form -->
+		<form id="register" class="input-group" action="signup.php" method="POST">
+			<input type="text" name="fullname" class="input-field" placeholder="Full Name" required>
+			<input type="email" name="email" class="input-field" placeholder="Email Address" required>
+			<input type="password" name="password" class="input-field" placeholder="Create Password" required>
+			<input type="password" name="confirm_password" class="input-field" placeholder="Confirm Password" required>
+			<input type="checkbox" class="check-box" id="chkAgree" onclick="goFurther()">I agree to the Terms & Conditions
+			<button type="submit" id="btnSubmit" class="submit-btn reg-btn">Signup</button>
+		</form>
+
+	</div>
+	<script type="text/javascript" src="script.js"></script>
+</body>
+</html>

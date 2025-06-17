@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InsightZentra</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+        }
+        .sidebar {
+            width: 25%;
+            background: white;
+            padding: 20px;
+            color: black;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+            background: white;
+        }
+        .input-group {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .input-group input, .input-group textarea {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .input-group button {
+            padding: 10px;
+            background: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .output-box {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .error {
+            color: red;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .dark-mode {
+            background-color: #333;
+            color: white;
+        }
+        .dark-mode .sidebar {
+            background-color: #222;
+        }
+        .dark-mode .content {
+            background-color: #444;
+            color: white;
+        }
+        .dark-mode .input-group input, .dark-mode .input-group textarea {
+            background-color: #555;
+            color: white;
+            border-color: #666;
+        }
+        .dark-mode .output-box {
+            border-color: #666;
+        }
+        .history-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+        }
+        .history-item h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+        .history-item p {
+            margin: 5px 0;
+        }
+        .top-right {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+               /* Translation dropdown styles */
+        .translation-dropdown {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            z-index: 1000;
+            display: none; /* Hidden by default */
+        }
+        .translation-dropdown button {
+            display: block;
+            width: 100%;
+            padding: 5px;
+            text-align: left;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .translation-dropdown button:hover {
+            background-color: #f0f0f0;
+        }
+
+	#export-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    white-space: nowrap; /* Prevents text wrapping */
+}
+
+#export-dropdown button {
+    display: block; /* Ensures each button takes the full width */
+    width: 100%; /* Makes buttons align properly */
+    text-align: left;
+    padding: 8px 12px;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+#export-dropdown button:hover {
+    background: #f0f0f0;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>History</h2>
+            <div id="history-list">
+                {% for item in history %}
+                <div class="history-item">
+                    <h3>{{ item.url }}</h3>
+                    <p>{{ item.summary }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </aside>
+        
+        <main class="content">
+            <!-- Top Right Buttons -->
+            <div class="top-right">
+        <button id="new-btn">🆕</button>
+        <button id="dark-mode-toggle">🌙</button>
+        
+	<div style="position: relative; display: inline-block;">
+            <button id="export-btn">📤</button>
+            <div id="export-dropdown">
+                <button onclick="exportAs('pdf')">Export as PDF</button>
+                <button onclick="exportAs('docx')">Export as DOCX</button>
+            </div>
+        </div>
+
+
+        <select id="languageSelect">
+            <option value="en">English</option>
+            <option value="ta">Tamil</option>
+            <option value="hi">Hindi</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+        </select>
+        <button id="translateButton" onclick="translateContent()">Translate</button>
+        <span id="loadingSpinner" style="display: none;">🔄</span>
+    </div>
+
+            <h1>InsightZentra</h1>
+            
+            <!-- URL Input -->
+            <div class="input-group">
+                <input type="text" id="url-input" placeholder="Enter URL">
+                <button id="summarize-btn">Summarize</button>
+            </div>
+            
+            <!-- Summary Box -->
+            <div class="output-box" id="summary-box">
+                <p id="summary-text">{{ summary }}</p>
+                {% if error %}
+                <p class="error">{{ error }}</p>
+                {% endif %}
+                <div class="actions">
+                    <button class="icon-btn" id="tts-summary">▶</button>		                		</div>
+            </div>
+            
+            <!-- Question Input -->
+            <div class="input-group">
+                <textarea id="question-input" placeholder="Ask a Question"></textarea>
+                <button id="ask-btn">Submit</button>
+            </div>
+            
+            <!-- Q&A Box -->
+            <div class="output-box" id="answer-box">
+                {% for qna in qna %}
+                <p><strong>Q:</strong> {{ qna.question }}</p>
+                <p><strong>A:</strong> <span id="answer-{{ loop.index }}">{{ qna.answer }}</span></p>
+                <div class="actions">
+                    <button class="icon-btn" onclick="playAudio('answer_{{ loop.index }}.mp3')">▶</button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loading-spinner" class="loader"></div>
+        </main>
+    </div>
+    
+    <script>
+        // Dark Mode Toggle
+        const darkModeToggle = document.getElementById("dark-mode-toggle");
+        const body = document.body;
+
+        darkModeToggle.addEventListener("click", function() {
+            body.classList.toggle("dark-mode");
+        });
+
+        // Show/Hide Loading Spinner
+        function showSpinner() {
+            document.getElementById("loading-spinner").style.display = "block";
+        }
+
+        function hideSpinner() {
+            document.getElementById("loading-spinner").style.display = "none";
+        }
+
+
+function translateContent() {
+    let selectedLanguage = document.getElementById("languageSelect").value;
+    let translateButton = document.getElementById("translateButton");
+    let spinner = document.getElementById("loadingSpinner");
+
+    // Show loading spinner and disable button
+    spinner.style.display = "inline-block";
+    translateButton.disabled = true;
+
+    fetch('/translate_all', {
+        method: 'POST',
+        body: new URLSearchParams({ 'language': selectedLanguage }),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Translation Response:", data); // Debugging log
+
+        if (data.success) {
+            // Update the summary text
+            let summaryElem = document.getElementById("summary-text");
+            if (summaryElem) {
+                summaryElem.innerText = data.summary || "Translation failed";
+            }
+
+            // Update the Q&A answers
+            let qnaBox = document.getElementById("answer-box");
+            if (qnaBox) {
+                qnaBox.innerHTML = ""; // Clear existing Q&A
+                data.qna.forEach((qna, index) => {
+                    let questionElem = document.createElement("p");
+                    questionElem.innerHTML = `<strong>Q:</strong> ${qna.question}`;
+
+                    let answerElem = document.createElement("p");
+                    answerElem.innerHTML = `<strong>A:</strong> ${qna.answer}`;
+
+                    let audioButton = document.createElement("button");
+                    audioButton.className = "icon-btn";
+                    audioButton.onclick = () => playAudio(`answer_${index + 1}.mp3`);
+                    audioButton.innerText = "▶";
+
+                    qnaBox.appendChild(questionElem);
+                    qnaBox.appendChild(answerElem);
+                    qnaBox.appendChild(audioButton);
+                });
+            }
+        } else {
+            console.error("Translation failed:", data.error);
+            alert("Translation failed! Error: " + (data.error || "Unknown error"));
+        }
+    })
+    .catch(error => {
+        console.error("Translation error:", error);
+        alert("Translation request failed. Please check your network or backend.");
+    })
+    .finally(() => {
+        // Hide spinner and enable button after translation completes
+        spinner.style.display = "none";
+        translateButton.disabled = false;
+    });
+}
+
+
+
+
+
+
+
+
+        // New Button
+        document.getElementById("new-btn").addEventListener("click", function() {
+            fetch("/new", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                }
+            });
+        });
+
+
+document.getElementById("export-btn").addEventListener("click", function(event) {
+    event.stopPropagation();
+    const exportDropdown = document.getElementById("export-dropdown");
+    exportDropdown.style.display = exportDropdown.style.display === "none" ? "block" : "none";
+});
+
+document.addEventListener("click", function(event) {
+    const exportDropdown = document.getElementById("export-dropdown");
+    if (!document.getElementById("export-btn").contains(event.target)) {
+        exportDropdown.style.display = "none";
+    }
+});
+
+        
+        function exportAs(format) {
+    fetch("/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `export_type=${format}`
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `export.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    });
+}
+
+        // Audio Playback
+let currentAudio = null;
+
+function playAudio(filename) {
+    if (currentAudio) {
+        if (!currentAudio.paused && currentAudio.src.includes(filename)) {
+            // If the same audio is playing, stop it
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            currentAudio = null;
+            return; // Exit function
+        } else {
+            // Stop any currently playing audio and play the new one
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+        }
+    }
+
+    fetch(`/audio/${filename}`)
+    .then(response => {
+        if (response.ok) {
+            currentAudio = new Audio(response.url);
+            currentAudio.play();
+        } else {
+            alert("Audio not available.");
+        }
+    });
+}
+
+       
+        // Summarize Button
+        document.getElementById("summarize-btn").addEventListener("click", function() {
+            showSpinner(); // Show spinner
+            let url = document.getElementById("url-input").value.trim();
+
+            if (!url) {
+                alert("Please enter a valid URL.");
+                hideSpinner(); // Hide spinner if URL is invalid
+                return;
+            }
+
+            if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                url = "https://" + url;
+            }
+
+            fetch("/submit_url", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `url=${encodeURIComponent(url)}`
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while processing the URL.");
+            })
+            .finally(() => hideSpinner()); // Hide spinner after operation
+        });
+
+        // Play Summary Audio
+        document.getElementById("tts-summary").addEventListener("click", function() {
+            let audioFile = "summary_audio.mp3";
+            playAudio(audioFile);
+        });
+
+        // Ask Button
+        document.getElementById("ask-btn").addEventListener("click", function() {
+            showSpinner(); // Show spinner
+            let question = document.getElementById("question-input").value.trim();
+
+            if (!question) {
+                alert("Please enter a question.");
+                hideSpinner(); // Hide spinner if question is empty
+                return;
+            }
+
+            fetch("/get_answer", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `prompt=${encodeURIComponent(question)}`
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while processing the question.");
+            })
+            .finally(() => hideSpinner()); // Hide spinner after operation
+        });
+	
+	document.getElementById("language-dropdown").addEventListener("change", function() {
+            const selectedLanguage = this.value;
+            fetch("/translate", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `language=${selectedLanguage}`
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>

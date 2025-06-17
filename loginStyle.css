@@ -1,0 +1,135 @@
+/* Body and background */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: url('images/background.jpg') no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Container */
+.form-box {
+  width: 400px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  backdrop-filter: blur(10px);
+  color: #fff;
+}
+
+/* Toggle buttons */
+.button-box {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 10px;
+  cursor: pointer;
+  background: #333;
+  border: none;
+  color: #fff;
+  transition: background 0.3s;
+}
+
+.toggle-btn:hover {
+  background: #444;
+}
+
+/* Social icons */
+.social-icons {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.social-icons img {
+  width: 30px;
+  margin: 0 10px;
+  cursor: pointer;
+}
+
+/* Input field group */
+.input-group {
+  display: none;
+  flex-direction: column;
+}
+
+.input-group.active {
+  display: flex;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 5px;
+  outline: none;
+}
+
+/* Form controls */
+.inp {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.inp img {
+  width: 20px;
+  margin-right: 10px;
+}
+
+.check-box {
+  margin: 10px 0;
+}
+
+.submit-btn {
+  background: #000;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.submit-btn:hover {
+  background: #333;
+}
+
+/* Google button */
+.connect {
+  background: #fff;
+  color: #444;
+  border: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.connect img {
+  width: 20px;
+  margin-right: 10px;
+}
+
+/* Divider */
+.instead h3 {
+  text-align: center;
+  margin: 20px 0;
+  font-weight: normal;
+  font-size: 14px;
+  color: #eee;
+}
